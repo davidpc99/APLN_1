@@ -28,16 +28,13 @@ def calculate_rouge(predictions, references):
     return results
     
 def get_test_answers(dataset):
-    #return [[string] for string in dataset['test']['answer']]
     return dataset['test']['answer']
 
 def get_predicted_answers(predictions):
     return [prediction["answer"] for prediction in predictions]
-    ##return predictions["answer"]
 
 def get_question_and_contexts(x):
     return {'question': x['question'], 'context': x['context']}
-
 
 def main():
     device_id = -1
@@ -50,10 +47,9 @@ def main():
     qa = list(map(get_question_and_contexts, dataset['test']))
     nlp = pipeline('question-answering', model=model_name, tokenizer=model_name, device=device_id, batch_size=len(qa))
 
-    print("Getting predictions...")
+    print("Getting evaluation...")
     predictions = get_predicted_answers(nlp(qa))
     references = get_test_answers(dataset)
-
 
     bleu_score = calculate_bleu(predictions, references)
     rouge_score = calculate_rouge(predictions, references)

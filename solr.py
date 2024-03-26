@@ -1,7 +1,9 @@
-import pysolr
 from docopt import docopt
+from transformers import pipeline
+from alive_progress import alive_bar
 import datasets
-import os
+import pysolr
+import torch
 
 usage= """
     Usage:  solr.py send
@@ -20,14 +22,25 @@ def send():
 def retrieve(query):
     solr = pysolr.Solr('http://localhost:8983/solr/prac1', always_commit=True)
 
-    documents = solr.search(query, rows=2, fl=["description"])
-    if not os.path.exists("solr_retrieved"):
-        os.mkdir("solr_retrieved")
+    documents = solr.search(query, rows=10, fl=["description"])
+    return documents
 
-    f = open("solr_retrieved/solr_documents.txt", "w", encoding="utf-8")
-    for document in documents:
-        f.write(str(document))
-    f.close()
+
+def send_to_pipeline(documents, query):
+    device_id = -1
+    if torch.cuda.is_available():
+        device_id = torch.cuda.current_device()
+
+    #model_name = "deepset/roberta-base-squad2"
+    model_name = "Intel/dynamic_tinybert"
+    batch = [{'question': query, 'context': document['description']} for document in documents]
+
+    nlp = pipeline('question-answering', model=model_name, tokenizer=model_name, device=device_id, batch_size=len(documents))
+    print("Getting predictions...")
+    predictions = nlp(batch)
+    score_list = [prediction['score'] for prediction in predictions]
+    best_prediction_index = score_list.index(max(score_list))
+    print(predictions[best_prediction_index]['answer'])
 
 
 def argParser(arg):
@@ -47,7 +60,10 @@ def main():
     if selected_function is send:
         selected_function()
     else:
-        selected_function(query)
+        documents = selected_function(query)
+        send_to_pipeline(documents, query)
+
+
 
 if __name__ == "__main__":
     main()
