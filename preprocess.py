@@ -38,7 +38,6 @@ def main():
                 title_to_context[example['title']] = example['text']
             bar()
 
-
     # Map del contexto según título
     for dataset_set in dataset2:
         dataset2[dataset_set] = dataset2[dataset_set].map(lambda x: {'context': title_to_context.get(x['document_title'], "")})

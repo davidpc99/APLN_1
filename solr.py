@@ -14,7 +14,7 @@ def send():
     solr = pysolr.Solr('http://localhost:8983/solr/prac1', always_commit=True)
 
     dataset = datasets.load_from_disk("data/wiki_corpus")
-    dataset = dataset.select(range(1000))
+    dataset = dataset.select(range(10000))
     documents = [{"id": row['id'], "title": row['title'], "description": row['text']} for row in dataset]
     solr.add(documents)
     
