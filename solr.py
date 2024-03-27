@@ -31,8 +31,7 @@ def send_to_pipeline(documents, query):
     if torch.cuda.is_available():
         device_id = torch.cuda.current_device()
 
-    #model_name = "deepset/roberta-base-squad2"
-    model_name = "Intel/dynamic_tinybert"
+    model_name = "Rakib/roberta-base-on-cuad"
     batch = [{'question': query, 'context': document['description']} for document in documents]
 
     nlp = pipeline('question-answering', model=model_name, tokenizer=model_name, device=device_id, batch_size=len(documents))

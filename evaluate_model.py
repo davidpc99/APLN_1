@@ -1,6 +1,5 @@
 from docopt import docopt
 from transformers import pipeline
-from alive_progress import alive_bar
 import torch
 import datasets
 import evaluate
